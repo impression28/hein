@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 	// for other purposes (highlighting for analysis,
 	// etc.)
 	enum Piece {
-		EMPTY_PIECE,
+		EMPTY_PIECE,	// Default state with no piece
 		RED_PIECE,	// Red plays first
 		BLUE_PIECE,	// Blue plays second
 	};
