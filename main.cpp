@@ -38,7 +38,7 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 
 	// #TODO: suppport boards of different sizes
 	std::string board_template = std::string {\
-	" A B C D E F G H I J K L\n"
+	"   A B C D E F G H I J K\n"
 	"  • • • • • • • • • • • • •\n"
 	" 1 • · · · · · · · · · · · •\n"
 	"  2 • · · · · · · · · · · · •\n"
