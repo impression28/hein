@@ -4,6 +4,10 @@
 #include <assert.h>
 
 #define DEBUG
+
+const size_t BOARD_SIZE = 11;
+const char placeholder_char = '.';
+
 // This is the enum which will fill the board array
 // maybe in the future more options will be added 
 // for other purposes (highlighting for analysis,
@@ -19,8 +23,8 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board);
 
 int main(int argc, char *argv[])
 {
-	std::vector <Piece> v(11, EMPTY_PIECE);
-	std::vector <std::vector <Piece>> board(11, v);
+	std::vector <Piece> v(BOARD_SIZE, EMPTY_PIECE);
+	std::vector <std::vector <Piece>> board(BOARD_SIZE, v);
 	board[2][3] = RED_PIECE;
 	board[5][3] = RED_PIECE;
 	board[7][6] = RED_PIECE;
@@ -33,15 +37,15 @@ int main(int argc, char *argv[])
 
 // Preconditions: 
 //	* board must be 11x11
-//	* all lines must have exactly 11 '.'
+//	* all lines which have places must have exactly 11 '.'
 
 std::string DrawBoard(std::vector <std::vector <Piece>> board) 
 {
 	// Test preconditions
 	#ifdef DEBUG
-	assert(board.size() == 11);
-	for (size_t i = 0; i < 11; i++)
-		assert(board.at(i).size() == 11);
+	assert(board.size() == BOARD_SIZE);
+	for (size_t i = 0; i < BOARD_SIZE; i++)
+		assert(board.at(i).size() == BOARD_SIZE);
 	#endif
 
 	// #TODO: suppport boards of different sizes
@@ -62,9 +66,27 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 	"              • • • • • • • • • • • • •\n"};
 	size_t row = 0;
 	size_t column = 0;
+
+	#ifdef DEBUG
+	unsigned int place_count = 0;
+	for (const char &c: board_template)
+	{
+		switch (c)
+		{
+			case placeholder_char:
+				place_count++;
+				break;
+			case '\n':
+				assert(place_count == BOARD_SIZE || place_count == 0);
+				place_count = 0;
+				break;
+		}
+	}
+	#endif
+
 	for (char &c: board_template)
 	{
-		if (c == '.')
+		if (c == placeholder_char)
 		{
 			switch (board[row][column])
 			{
@@ -75,11 +97,10 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 					c = 'B';
 					break;
 				case EMPTY_PIECE:
+					c = '-';
 					break;
 			}
-			// #TODO: check if the table was well-formated
-			// for debug
-			if (column < 10)
+			if (column < BOARD_SIZE - 1)
 			{
 				column++;
 			}
