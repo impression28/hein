@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <assert.h>
+#include <cctype>
+#include <cstdlib>
 
 #define DEBUG
 
@@ -21,19 +23,48 @@ typedef enum
 
 std::string DrawBoard(std::vector <std::vector <Piece>> board);
 
+void GameLoop(std::vector <std::vector <Piece>> board);
+
 int main(int argc, char *argv[])
 {
 	std::vector <Piece> v(BOARD_SIZE, EMPTY_PIECE);
 	std::vector <std::vector <Piece>> board(BOARD_SIZE, v);
-	board[2][3] = RED_PIECE;
-	board[5][3] = RED_PIECE;
-	board[7][6] = RED_PIECE;
-	board[5][5] = BLUE_PIECE;
-	board[1][10] = BLUE_PIECE;
-	board[8][9] = BLUE_PIECE;
-	std::cout << DrawBoard(board);
+
+	GameLoop(board);
+
 	return 0;
 }
+
+void GameLoop(std::vector <std::vector <Piece>> board)
+{
+	bool game_over = false;
+	std::string command = "";
+	do
+	{
+		std::cout << DrawBoard(board) << std::endl;
+		std::cout << ">> ";
+		getline(std::cin, command);
+		/*
+		if (command.size() == 2)
+		{
+			char column_char = command[0];
+			char row_char = command[1];
+			size_t column = 0;
+			size_t row = 0;
+			if (isalpha(column_char) && isdigit(row_char))
+			{
+				row = atoi(row_char);
+				column = (size_t)((size_t)column - (size_t)'a');
+				std::cout << row << " " << column;
+				continue;
+			}
+		}
+		std::cout << "Invalid command, try again";
+		*/
+	}
+	while (!game_over);
+}
+	
 
 // Preconditions: 
 //	* board must be 11x11
@@ -50,7 +81,7 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 
 	// #TODO: suppport boards of different sizes
 	std::string board_template = std::string {\
-	"   A B C D E F G H I J K\n"
+	"\n   A B C D E F G H I J K\n"
 	"  • • • • • • • • • • • • •\n"
 	" 1 • . . . . . . . . . . . •\n"
 	"  2 • . . . . . . . . . . . •\n"
