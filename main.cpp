@@ -58,17 +58,20 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
 				row = row_char - '1';
 				if (0 <= row && row < BOARD_SIZE && 0 <= column && column < BOARD_SIZE )
 				{
-					board[row][column] = current_piece;
-					switch (current_piece)
+					if (board[row][column] == EMPTY_PIECE)
 					{
-						case RED_PIECE:
-							current_piece = BLUE_PIECE;
-							break;
-						case BLUE_PIECE:
-							current_piece = RED_PIECE;
-							break;
+						board[row][column] = current_piece;
+						switch (current_piece)
+						{
+							case RED_PIECE:
+								current_piece = BLUE_PIECE;
+								break;
+							case BLUE_PIECE:
+								current_piece = RED_PIECE;
+								break;
+						}
+						continue;
 					}
-					continue;
 				}
 			}
 		}
