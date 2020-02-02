@@ -23,7 +23,7 @@ typedef enum
 
 std::string DrawBoard(std::vector <std::vector <Piece>> board);
 
-void GameLoop(std::vector <std::vector <Piece>> board);
+void GameLoop(std::vector <std::vector <Piece>> &board);
 
 int main(int argc, char *argv[])
 {
@@ -35,34 +35,45 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void GameLoop(std::vector <std::vector <Piece>> board)
+void GameLoop(std::vector <std::vector <Piece>> &board)
 {
 	bool game_over = false;
+	Piece current_piece = RED_PIECE;
 	std::string command = "";
-	do
+	while (!game_over)
 	{
 		std::cout << DrawBoard(board) << std::endl;
 		std::cout << ">> ";
 		getline(std::cin, command);
-		/*
+		// #TODO: suppport boards of different sizes
 		if (command.size() == 2)
 		{
 			char column_char = command[0];
 			char row_char = command[1];
 			size_t column = 0;
 			size_t row = 0;
-			if (isalpha(column_char) && isdigit(row_char))
+			if ((islower(column_char) != 0) && (isdigit(row_char) != 0))
 			{
-				row = atoi(row_char);
-				column = (size_t)((size_t)column - (size_t)'a');
-				std::cout << row << " " << column;
-				continue;
+				column = column_char - 'a';
+				row = row_char - '1';
+				if (0 <= row && row < BOARD_SIZE && 0 <= column && column < BOARD_SIZE )
+				{
+					board[row][column] = current_piece;
+					switch (current_piece)
+					{
+						case RED_PIECE:
+							current_piece = BLUE_PIECE;
+							break;
+						case BLUE_PIECE:
+							current_piece = RED_PIECE;
+							break;
+					}
+					continue;
+				}
 			}
 		}
 		std::cout << "Invalid command, try again";
-		*/
 	}
-	while (!game_over);
 }
 	
 
