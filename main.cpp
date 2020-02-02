@@ -21,9 +21,11 @@ typedef enum
     BLUE_PIECE,	// Blue plays second
 } Piece;
 
+// Prototypes
 std::string DrawBoard(std::vector <std::vector <Piece>> board);
-
 void GameLoop(std::vector <std::vector <Piece>> &board);
+bool CheckWin(const std::vector <std::vector <Piece>> &board);
+
 
 int main(int argc, char *argv[])
 {
@@ -74,6 +76,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
                             break;
                     }
 					move_number++;
+					game_over = CheckWin(board);
                     continue;
                 }
             }
@@ -161,4 +164,10 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
         }
     }
     return std::string {board_template};
+}
+
+// #TODO use Dijkstra algorithm to check for wins
+bool CheckWin(const std::vector <std::vector <Piece>> &board)
+{
+    return false;
 }
