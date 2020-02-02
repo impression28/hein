@@ -40,6 +40,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
     bool game_over = false;
     Piece current_piece = RED_PIECE;
     std::string command = "";
+	size_t move_number = 0;
     while (!game_over)
     {
         std::cout << DrawBoard(board) << std::endl;
@@ -58,7 +59,9 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
                 row = row_char - '1';
                 if (0 <= row    && row    < BOARD_SIZE && 
                     0 <= column && column < BOARD_SIZE &&
-                    board[row][column]  ==  EMPTY_PIECE )
+                    (board[row][column]  ==  EMPTY_PIECE ||
+					 // This will allow the pie rule
+					 move_number == 1))
                 {
                     board[row][column] = current_piece;
                     switch (current_piece)
@@ -70,6 +73,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
                             current_piece = RED_PIECE;
                             break;
                     }
+					move_number++;
                     continue;
                 }
             }
