@@ -22,10 +22,10 @@ typedef enum
 } Piece;
 
 // Prototypes
-std::string DrawBoard(std::vector <std::vector <Piece>> board);
+std::string DrawBoard(const std::vector <std::vector <Piece>> &board);
 void GameLoop(std::vector <std::vector <Piece>> &board);
 bool CheckWin(const std::vector <std::vector <Piece>> &board);
-
+bool DecodeCommand(const std::string &command, size_t &row, size_t &column);
 
 int main(int argc, char *argv[])
 {
@@ -49,36 +49,28 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
         std::cout << ">> ";
         getline(std::cin, command);
         // #TODO: suppport boards of different sizes
-        if (command.size() == 2)
+        size_t column = 0;
+        size_t row = 0;
+        if (DecodeCommand(command, row, column))
         {
-            char column_char = command[0];
-            char row_char = command[1];
-            size_t column = 0;
-            size_t row = 0;
-            if ((islower(column_char) != 0) && (isdigit(row_char) != 0))
+            if (0 <= row    && row    < BOARD_SIZE   && 
+                0 <= column && column < BOARD_SIZE   &&
+                // This will allow the pie rule
+                (board[row][column]  ==  EMPTY_PIECE || move_number == 1))
             {
-                column = column_char - 'a';
-                row = row_char - '1';
-                if (0 <= row    && row    < BOARD_SIZE && 
-                    0 <= column && column < BOARD_SIZE &&
-                    (board[row][column]  ==  EMPTY_PIECE ||
-					 // This will allow the pie rule
-					 move_number == 1))
+                board[row][column] = current_piece;
+                switch (current_piece)
                 {
-                    board[row][column] = current_piece;
-                    switch (current_piece)
-                    {
-                        case RED_PIECE:
-                            current_piece = BLUE_PIECE;
-                            break;
-                        case BLUE_PIECE:
-                            current_piece = RED_PIECE;
-                            break;
-                    }
-					move_number++;
-					game_over = CheckWin(board);
-                    continue;
+                    case RED_PIECE:
+                        current_piece = BLUE_PIECE;
+                        break;
+                    case BLUE_PIECE:
+                        current_piece = RED_PIECE;
+                        break;
                 }
+                move_number++;
+                game_over = CheckWin(board);
+                continue;
             }
         }
         std::cout << "Invalid command, try again";
@@ -90,7 +82,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
 //	* board must be 11x11
 //	* all lines which have places must have exactly 11 '.'
 
-std::string DrawBoard(std::vector <std::vector <Piece>> board) 
+std::string DrawBoard(const std::vector <std::vector <Piece>> &board) 
 {
     // Test preconditions
 #ifdef DEBUG
@@ -101,7 +93,7 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 
     // #TODO: suppport boards of different sizes
     std::string board_template = std::string {\
-        "\n   A B C D E F G H I J K\n"
+            "\n   A B C D E F G H I J K\n"
             "  • • • • • • • • • • • • •\n"
             " 1 • . . . . . . . . . . . •\n"
             "  2 • . . . . . . . . . . . •\n"
@@ -170,4 +162,59 @@ std::string DrawBoard(std::vector <std::vector <Piece>> board)
 bool CheckWin(const std::vector <std::vector <Piece>> &board)
 {
     return false;
+}
+
+// Return true if decoding is succesful and false otherwise.
+// Will output row and column via the parameters passed by
+// mutable reference if successful and zero to both if not 
+// successful.
+bool DecodeCommand(const std::string &command, size_t &row, size_t &column)
+{
+    row = 0;
+    column = 0;
+
+    if (command.size() < 2)
+        return false;
+
+    // #TODO support boardsizes of length greater than 26 even if SGF doesn't
+
+    // This i will scan the string
+    size_t i = 0;
+    if ( islower(command[i]) == 0 )
+    {
+        return false;
+    }
+    // No need for a loop since only one character is allowed
+    // for columns
+    column = command[i] - 'a';
+    i++;
+
+    if ( isdigit(command[i] == 0) )
+    {
+        column = 0;
+        return false;
+    }
+
+    while ( isdigit(command[i]) != 0 || i < command.size() )
+    {
+        row *= '9' - '0' + 1;
+        row += command[i] - '0';
+        i++;
+    }
+    row--;
+    if (row < 0)
+    {
+        row = 0;
+        column = 0;
+        return false;
+    }
+
+    if (i != command.size())
+    {
+        row = 0;
+        column = 0;
+        return false;
+    }
+
+    return true;
 }
