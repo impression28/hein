@@ -43,6 +43,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
     Piece current_piece = RED_PIECE;
     std::string command = "";
 	size_t move_number = 0;
+    std::cout << "\033[H" << "\033[J" << "\033[H";
     while (!game_over)
     {
         std::cout << DrawBoard(board) << std::endl;
@@ -69,11 +70,12 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
                         break;
                 }
                 move_number++;
-                game_over = CheckWin(board);
+                game_over = CheckWin(board) || CheckWin(board);
+                std::cout << "\033[H" << "\033[J" << "\033[H";
                 continue;
             }
         }
-        std::cout << "Invalid command, try again";
+        std::cout << "\033[H" << "\033[J" << "\033[H" << "Invalid command, try again";
     }
 }
 
@@ -93,20 +95,21 @@ std::string DrawBoard(const std::vector <std::vector <Piece>> &board)
 
     // #TODO: suppport boards of different sizes
     std::string board_template = std::string {\
-            "\n   A B C D E F G H I J K\n"
-            "  • • • • • • • • • • • • •\n"
-            " 1 • . . . . . . . . . . . •\n"
-            "  2 • . . . . . . . . . . . •\n"
-            "   3 • . . . . . . . . . . . •\n"
-            "    4 • . . . . . . . . . . . •\n"
-            "     5 • . . . . . . . . . . . •\n"
-            "      6 • . . . . . . . . . . . •\n"
-            "       7 • . . . . . . . . . . . •\n"
-            "        8 • . . . . . . . . . . . •\n"
-            "         9 • . . . . . . . . . . . •\n"
-            "         10 • . . . . . . . . . . . •\n"
-            "          11 • . . . . . . . . . . . •\n"
-            "              • • • • • • • • • • • • •\n"};
+          "\n   A B C D E F G H I J K\n"
+            "  • \033[31m• • • • • • • • • • •\033[0m •\n"
+            " 1 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 1\n"
+            "  2 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 2\n"
+            "   3 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 3\n"
+            "    4 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 4\n"
+            "     5 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 5\n"
+            "      6 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 6\n"
+            "       7 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 7\n"
+            "        8 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 8\n"
+            "         9 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 9\n"
+            "         10 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 10\n"
+            "          11 \033[34m•\033[0m . . . . . . . . . . . \033[34m•\033[0m 11\n"
+            "              • \033[31m• • • • • • • • • • •\033[0m • \n"
+            "                 A B C D E F G H I J K\n"};
     size_t row = 0;
     size_t column = 0;
 
@@ -158,7 +161,7 @@ std::string DrawBoard(const std::vector <std::vector <Piece>> &board)
     return std::string {board_template};
 }
 
-// #TODO use Dijkstra algorithm to check for wins
+// #TODO use depth-first search to check for wins
 bool CheckWin(const std::vector <std::vector <Piece>> &board)
 {
     return false;
