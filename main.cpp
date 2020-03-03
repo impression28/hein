@@ -5,8 +5,6 @@
 #include <cctype>
 #include <cstdlib>
 
-#define DEBUG
-
 const size_t BOARD_SIZE = 11;
 const char placeholder_char = '.';
 
@@ -25,6 +23,9 @@ typedef enum
 std::string DrawBoard(const std::vector <std::vector <Piece>> &board);
 void GameLoop(std::vector <std::vector <Piece>> &board);
 bool CheckWin(const std::vector <std::vector <Piece>> &board);
+bool recursive_lookaround(const std::vector <std::vector<Piece>> &board,
+                          std::vector <std::vector<Piece>> &discovered_pieces, 
+                          size_t row, size_t column, const Piece &color);
 bool DecodeCommand(const std::string &command, size_t &row, size_t &column);
 
 int main(int argc, char *argv[])
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
 
 void GameLoop(std::vector <std::vector <Piece>> &board)
 {
@@ -70,7 +72,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
                         break;
                 }
                 move_number++;
-                game_over = CheckWin(board) || CheckWin(board);
+                game_over = CheckWin(board);
                 std::cout << "\033[H" << "\033[J" << "\033[H";
                 continue;
             }
@@ -84,7 +86,7 @@ void GameLoop(std::vector <std::vector <Piece>> &board)
 //	* board must be 11x11
 //	* all lines which have places must have exactly 11 '.'
 
-std::string DrawBoard(const std::vector <std::vector <Piece>> &board) 
+std::string DrawBoard(const std::vector <std::vector<Piece>> &board) 
 {
     // Test preconditions
 #ifdef DEBUG
@@ -164,6 +166,134 @@ std::string DrawBoard(const std::vector <std::vector <Piece>> &board)
 // #TODO use depth-first search to check for wins
 bool CheckWin(const std::vector <std::vector <Piece>> &board)
 {
+    static std::vector <Piece> v(BOARD_SIZE, EMPTY_PIECE);
+    static std::vector <std::vector <Piece>> discovered_pieces(BOARD_SIZE, v);
+    for (size_t i = 0; i < board[0].size(); i++)
+    {
+        if (board[0][i] == RED_PIECE)
+        {
+            discovered_pieces[0][i] = RED_PIECE;
+            if (recursive_lookaround(board, discovered_pieces, 0, i, RED_PIECE))
+            {
+                for (size_t i = 0; i < board[0].size(); i++)
+                    for (size_t j = 0; j < board.size(); j++)
+                        discovered_pieces[j][i] = EMPTY_PIECE;
+                return true;
+            }
+        }
+    }
+    for (size_t i = 0; i < board.size(); i++)
+    {
+        if (board[i][0] == BLUE_PIECE)
+        {
+            discovered_pieces[i][0] = BLUE_PIECE;
+            if (recursive_lookaround(board, discovered_pieces, i, 0, BLUE_PIECE))
+            {
+                for (size_t i = 0; i < board[0].size(); i++)
+                    for (size_t j = 0; j < board.size(); j++)
+                        discovered_pieces[j][i] = EMPTY_PIECE;
+                return true;
+            }
+        }
+    }
+    for (size_t i = 0; i < board[0].size(); i++)
+        for (size_t j = 0; j < board.size(); j++)
+            discovered_pieces[j][i] = EMPTY_PIECE;
+    return false;
+}
+bool recursive_lookaround(const std::vector <std::vector<Piece>> &board,
+                          std::vector <std::vector<Piece>> &discovered_pieces, 
+                          size_t row, size_t column, const Piece &color)
+{
+    //std::cout << DrawBoard(discovered_pieces) << std::endl;
+    if (column+1 < board[row].size())
+    {
+        if (board[row][column+1] == color && discovered_pieces[row][column+1] != color)
+        {
+            if (color == BLUE_PIECE && column+1 == board[row].size()-1)
+            {
+                return true;
+            }
+            discovered_pieces[row][column+1] = color;
+            if (recursive_lookaround(board, discovered_pieces, row, column+1, color))
+            {
+                return true;
+            }
+        }
+    }
+    if (row+1 < board.size())
+    {
+        if (board[row+1][column] == color && discovered_pieces[row+1][column] != color)
+        {
+            if (color == RED_PIECE && row+1 == board.size()-1)
+            {
+                return true;
+            }
+            discovered_pieces[row+1][column] = color;
+            if (recursive_lookaround(board, discovered_pieces, row+1, column, color))
+            {
+                return true;
+            }
+        }
+    }
+    if (row > 0)
+    {
+        if (column+1 < board[row-1].size())
+        {
+            if (board[row-1][column+1] == color && discovered_pieces[row-1][column+1] != color)
+            {
+                if (color == BLUE_PIECE && column+1 == board[row-1].size()-1)
+                {
+                    return true;
+                }
+                discovered_pieces[row-1][column+1] = color;
+                if (recursive_lookaround(board, discovered_pieces, row-1, column+1, color))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    if (column > 0)
+    {
+        if (row+1 < board.size())
+        {
+            if (board[row+1][column-1] == color && discovered_pieces[row+1][column-1] != color)
+            {
+                if (color == RED_PIECE && row+1 == board.size()-1)
+                {
+                    return true;
+                }
+                discovered_pieces[row+1][column-1] = color;
+                if (recursive_lookaround(board, discovered_pieces, row+1, column-1, color))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    if (row > 0)
+    {
+        if (board[row-1][column] == color && discovered_pieces[row-1][column] != color)
+        {
+            discovered_pieces[row-1][column] = color;
+            if (recursive_lookaround(board, discovered_pieces, row-1, column, color))
+            {
+                return true;
+            }
+        }
+    }
+    if (column > 0)
+    {
+        if (board[row][column-1] == color && discovered_pieces[row][column-1] != color)
+        {
+            discovered_pieces[row][column-1] = color;
+            if (recursive_lookaround(board, discovered_pieces, row, column-1, color))
+            {
+                return true;
+            }
+        }
+    }
     return false;
 }
 
